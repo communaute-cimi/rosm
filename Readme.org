@@ -1,0 +1,43 @@
+* rosm
+
+POC d'un serveur proxy OSM écrit en Go afin d'avoir de meilleur perf
+que le POC Python essentiellement pour la mise en cache.
+
+Le dashboard bling bling bootstrap reste pour le moment en attendant
+de faire des ws.
+
+** Utilisation 
+
+Exemple de configuration :
+
+#+BEGIN_SRC json
+{
+    "cpu":4,
+    "listen":"8080",
+    "ttl":15,
+    "proxy":"",
+    "osmsrv":["a.tile.openstreetmap.org", "b.tile.openstreetmap.org", "c.tile.openstreetmap.org"],
+    "db":{
+    	"user":"ja",
+    	"password":"ja",
+    	"name":"tiled",
+    	"host":"192.168.122.162",
+    	"port":"5432"
+    }
+}
+#+END_SRC
+
+#+BEGIN_SRC sh
+go run rosm.go -c /etc/rosm.json
+#+END_SRC
+
+ou bien compile and run
+
+#+BEGIN_SRC sh
+go build rosm.go
+./rosm.go -c rosm.json
+#+END_SRC
+
+Par defaut le port est *8080*. Vous pouvez essayer avec l'application
+OpenLayer de démonstration.
+
