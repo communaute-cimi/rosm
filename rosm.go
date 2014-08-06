@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/communaute-cimi/rosm/cache"
 	"github.com/communaute-cimi/rosm/utils"
+	"github.com/communaute-cimi/rosm/ws"
 	_ "github.com/lib/pq"
 	"log"
 	"math/rand"
@@ -36,6 +37,7 @@ type Configuration struct {
 }
 
 var configfile string
+var showsqlf bool
 
 func newDb(config Configuration) (*sql.DB, error) {
 	cnx := fmt.Sprintf("host=%s user=%s password=%s dbname=%s", config.Db.Host, config.Db.User, config.Db.Password, config.Db.Name)
@@ -144,13 +146,54 @@ func getsrvosm(config Configuration) string {
 	return srvs[rand.Intn(len(srvs))]
 }
 
+func printSql() {
+	// print le schema de la base pour initdb
+	// mettre les index
+	fmt.Printf("CREATE TABLE \"tiles\" (\n" +
+		"\t\"id\" serial NOT NULL PRIMARY KEY,\n" +
+		"\t\"data\" bytea NOT NULL,\n" +
+		"\t\"dthr\" timestamp with time zone NOT NULL,\n" +
+		"\t\"z\" integer NOT NULL,\n" +
+		"\t\"x\" integer NOT NULL,\n" +
+		"\t\"y\" integer NOT NULL\n" +
+		");\n")
+
+	fmt.Printf("CREATE TYPE action AS ENUM (\n" +
+		"\t'hitcache',\n" +
+		"\t'hitwww',\n" +
+		"\t'cache',\n" +
+		"\t'404');\n")
+
+	fmt.Printf("CREATE TABLE \"logs\" (\n" +
+		"\t\"id\" serial NOT NULL PRIMARY KEY,\n" +
+		"\t\"action\" action,\n" +
+		"\t\"msg\" character varying(1024) NOT NULL,\n" +
+		"\t\"dthr\" timestamp with time zone NOT NULL," +
+		"\t\"z\" integer NOT NULL,\n" +
+		"\t\"x\" integer NOT NULL,\n" +
+		"\t\"y\" integer NOT NULL\n" +
+		");\n")
+
+	fmt.Printf("CREATE INDEX \"tile_x\" ON \"tiles\" (\"x\");\n" +
+		"CREATE INDEX \"tile_y\" ON \"tiles\" (\"y\");\n" +
+		"CREATE INDEX \"tile_z\" ON \"tiles\" (\"z\");\n" +
+		"CREATE INDEX \"tile_id\" ON \"tiles\" (\"id\");\n" +
+		"CREATE INDEX \"log_id\" ON \"logs\" (\"id\");\n")
+}
+
 func init() {
 	// ajouter un mode debug
+	flag.BoolVar(&showsqlf, "sql", false, "Afficher le schema sql")
 	flag.StringVar(&configfile, "c", "/etc/tiled.json", "Fichier de configuration")
 }
 
 func main() {
 	flag.Parse()
+
+	if showsqlf {
+		printSql()
+		os.Exit(0)
+	}
 
 	pconfig, err := newConfig(configfile)
 	config := *pconfig // mouai bof :)
@@ -170,13 +213,7 @@ func main() {
 		log.Fatal("Err cnx db : %s", err)
 	}
 
-	// http.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
-	// 	http.ServeFile(w, r, r.URL.Path[1:])
-	// })
-
-	// https://gist.github.com/tsenart/5fc18c659814c078378d
-	//http.Handle("/dashboard/", dashhandler(db))
-
+	http.Handle("/ws/", ws.WSHandler(db))
 	http.Handle("/", mainhandler(db, config))
 	// start srv
 	http.ListenAndServe(":"+config.Listen, nil)
