@@ -113,6 +113,8 @@ func mainhandler(db *sql.DB, config Configuration) http.Handler {
 			urlTile := fmt.Sprintf("http://%s/%d/%d/%d.png", getsrvosm(config), t.Z, t.X, t.Y)
 			t.Source = cache.SrcOSM{urlTile, config.Proxy}
 
+			log.Printf("demande de z:%d x:%d y:%d", t.Z, t.X, t.Y)
+
 			go func() {
 				err := storage.Get(t)
 				if err != nil {
@@ -123,6 +125,7 @@ func mainhandler(db *sql.DB, config Configuration) http.Handler {
 			}()
 
 			if b := (<-tchan).Data; b != nil {
+				log.Printf("rendu de z:%d x:%d y:%d", t.Z, t.X, t.Y)
 				fmt.Fprintf(w, "%s", b)
 			} else {
 				// j'pas sus peupler la data de la tuile ni depuis cache ni depuis www :(

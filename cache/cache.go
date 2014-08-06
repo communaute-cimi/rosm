@@ -120,7 +120,7 @@ func (s *Storage) Get(t *Tile) error {
 
 	switch t.Source.(type) {
 	case SrcOSM:
-		log.Printf("get vers %s via %s", t.Source.(SrcOSM).Urlwww, t.Source.(SrcOSM).Httpproxy)
+		log.Printf("get z:%d x:%d y:%d depuis %s via %s", t.Z, t.X, t.Y, t.Source.(SrcOSM).Urlwww, t.Source.(SrcOSM).Httpproxy)
 		err := getTileFromOSM(s.Store.(DbStorage).Db, t)
 		if err != nil {
 			return err
