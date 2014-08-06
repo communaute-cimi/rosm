@@ -1,0 +1,14 @@
+{
+    "cpu":4,
+    "listen":"8080",
+    "ttl":15,
+    "proxy":"",
+    "osmsrv":["a.tile.openstreetmap.org", "b.tile.openstreetmap.org", "c.tile.openstreetmap.org"],
+    "db":{
+    	"user":"ja",
+    	"password":"ja",
+    	"name":"tiled",
+    	"host":"192.168.122.162",
+    	"port":"5432"
+    }
+}
