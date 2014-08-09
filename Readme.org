@@ -47,4 +47,4 @@ OpenLayer de démonstration.
 
 ** Bench
 
-[[file:bench/rosm.png][file:~/go/src/github.com/communaute-cimi/rosm/bench/rosm.png]]
+[[file:bench/rosm.png][file:/bench/rosm.png]]
