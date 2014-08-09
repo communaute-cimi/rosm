@@ -128,6 +128,7 @@ func (s *Storage) Get(t *Tile) error {
 			go func() {
 				s.Put(t)
 			}()
+			return nil
 		}
 	case SrcFRASTER:
 		log.Printf("franceraster n'est pas implémenté :(")
@@ -135,7 +136,7 @@ func (s *Storage) Get(t *Tile) error {
 		log.Printf("Je ne trouve pas votre source de donnée pour peupler le cache")
 	}
 
-	return nil
+	return fmt.Errorf("pas de tuiles")
 }
 
 func getTileFromOSM(db *sql.DB, t *Tile) error {

@@ -12,6 +12,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"regexp"
 	"runtime"
@@ -211,6 +212,7 @@ func main() {
 
 	if err != nil {
 		log.Fatal("Err cnx db : %s", err)
+		os.Exit(0)
 	}
 
 	http.Handle("/ws/", ws.WSHandler(db))
