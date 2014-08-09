@@ -41,3 +41,6 @@ go build rosm.go
 Par defaut le port est *8080*. Vous pouvez essayer avec l'application
 OpenLayer de démonstration.
 
+** Profilage 
+
+*http://ip:port/debug/pprof/*
