@@ -44,3 +44,7 @@ OpenLayer de démonstration.
 ** Profilage 
 
 *http://ip:port/debug/pprof/*
+
+** Bench
+
+[[file:bench/rosm.png][file:~/go/src/github.com/communaute-cimi/rosm/bench/rosm.png]]
