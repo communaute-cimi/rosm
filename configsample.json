@@ -5,6 +5,9 @@
     "proxy":"",
     "osmsrv":["a.tile.openstreetmap.org", "b.tile.openstreetmap.org", "c.tile.openstreetmap.org"],
     "db":{
+	"type":"pgsql",
+	"maxidle":20,
+	"maxcnx":20,
     	"user":"ja",
     	"password":"ja",
     	"name":"tiled",

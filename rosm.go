@@ -113,6 +113,7 @@ func mainhandler(db *sql.DB, config Configuration) http.Handler {
 			t.Z = z
 			t.X = x
 			t.Y = y
+			t.Ttl = config.Ttl
 			urlTile := fmt.Sprintf("http://%s/%d/%d/%d.png", getsrvosm(config), t.Z, t.X, t.Y)
 			t.Source = cache.SrcOSM{urlTile, config.Proxy}
 
@@ -156,7 +157,8 @@ func printSql() {
 		"\t\"dthr\" timestamp with time zone NOT NULL,\n" +
 		"\t\"z\" integer NOT NULL,\n" +
 		"\t\"x\" integer NOT NULL,\n" +
-		"\t\"y\" integer NOT NULL\n" +
+		"\t\"y\" integer NOT NULL,\n" +
+		"\t\"src\" character varying(1024) NOT NULL\n" +
 		");\n")
 
 	fmt.Printf("CREATE TYPE action AS ENUM (\n" +
@@ -175,10 +177,9 @@ func printSql() {
 		"\t\"y\" integer NOT NULL\n" +
 		");\n")
 
-	fmt.Printf("CREATE INDEX \"tile_x\" ON \"tiles\" (\"x\");\n" +
-		"CREATE INDEX \"tile_y\" ON \"tiles\" (\"y\");\n" +
-		"CREATE INDEX \"tile_z\" ON \"tiles\" (\"z\");\n" +
-		"CREATE INDEX \"tile_id\" ON \"tiles\" (\"id\");\n" +
+	fmt.Printf("CREATE INDEX \"tile_id\" ON \"tiles\" (\"id\");\n" +
+		"CREATE INDEX \"tiles_src\" ON \"tiles\" (\"src\");" +
+		"CREATE INDEX \"tiles\" ON \"tiles\" (\"z\", \"x\", \"y\");" +
 		"CREATE INDEX \"log_id\" ON \"logs\" (\"id\");\n")
 }
 
