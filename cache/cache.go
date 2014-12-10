@@ -124,7 +124,6 @@ func (s *Storage) Get(t *Tile) error {
 						}
 					}()
 				}
-
 				return nil
 			}
 		}
@@ -145,6 +144,7 @@ func (s *Storage) Get(t *Tile) error {
 		log.Printf("get z:%d x:%d y:%d depuis %s via %s", t.Z, t.X, t.Y, t.Source.(SrcOSM).Urlwww, t.Source.(SrcOSM).Httpproxy)
 		err := getTileFromOSM(s.Store.(DbStorage).Db, t)
 		if err != nil {
+			log.Printf("Je ne cache pas car j'ai une erreur lors du get")
 			return err
 		} else {
 			go func() {
@@ -182,11 +182,23 @@ func getTileFromOSM(db *sql.DB, t *Tile) error {
 	}
 
 	defer resp.Body.Close()
+
+	if resp.Status != "200 OK" {
+		return fmt.Errorf("Trouve pas la tuile sur WWW (%s) via %s proxy:%s", resp.Status, t.Source.(SrcOSM).Urlwww, t.Source.(SrcOSM).Httpproxy)
+	}
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return fmt.Errorf("Je ne comprend pas très bien le contenu de cette tuile qui vient de %s", t.Source.(SrcOSM).Urlwww)
 	}
 
+	go func() {
+		_, err := db.Exec(QUERY_INSERT_LOG, "hitwww", "hit www!", time.Now(), t.Z, t.X, t.Y)
+		log.Printf("insert log db")
+		if err != nil {
+			log.Print(err)
+		}
+	}()
 	log.Printf("hitwww z:%d x:%d y:%d from %s", t.Z, t.X, t.Y, t.Source.(SrcOSM).Urlwww)
 
 	t.Data = body

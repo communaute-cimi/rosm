@@ -130,12 +130,14 @@ func mainhandler(db *sql.DB, config Configuration) http.Handler {
 
 			if b := (<-tchan).Data; b != nil {
 				log.Printf("rendu de z:%d x:%d y:%d", t.Z, t.X, t.Y)
+				cacheControlHeader := fmt.Sprintf("public,max-age=%d", t.Ttl*60)
+				w.Header().Set("Cache-Control", cacheControlHeader)
+				w.Header().Set("Expires", (t.Dthr.Add(time.Duration(t.Ttl) * time.Hour)).String())
 				fmt.Fprintf(w, "%s", b)
 			} else {
 				// j'pas sus peupler la data de la tuile ni depuis cache ni depuis www :(
 				http.Error(w, "Fucking error, le binaire de la tuile est vide !", 500)
 			}
-
 			log.Printf("info z:%d x:%d y:%d render in %s", z, x, y, time.Since(began))
 		} else {
 			http.NotFound(w, r)
@@ -155,6 +157,7 @@ func printSql() {
 		"\t\"id\" serial NOT NULL PRIMARY KEY,\n" +
 		"\t\"data\" bytea NOT NULL,\n" +
 		"\t\"dthr\" timestamp with time zone NOT NULL,\n" +
+		"\t\"state\" integer NOT NULL,\n" +
 		"\t\"z\" integer NOT NULL,\n" +
 		"\t\"x\" integer NOT NULL,\n" +
 		"\t\"y\" integer NOT NULL,\n" +
@@ -186,7 +189,7 @@ func printSql() {
 func init() {
 	// ajouter un mode debug
 	flag.BoolVar(&showsqlf, "sql", false, "Afficher le schema sql")
-	flag.StringVar(&configfile, "c", "/etc/tiled.json", "Fichier de configuration")
+	flag.StringVar(&configfile, "c", "/etc/rosm.json", "Fichier de configuration")
 }
 
 func main() {
